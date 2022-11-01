@@ -67,10 +67,6 @@ class MainActivity : AppCompatActivity() {
     private var bleAdapter:BluetoothAdapter? = null
     //repository.bleAdapter
 
-    //ble Gatt
-    private var bleGatt:BluetoothGatt?=null
-
-
 
 
 
@@ -123,6 +119,9 @@ class MainActivity : AppCompatActivity() {
     var scanResults: ArrayList<BluetoothDevice>? = ArrayList()
     var scanBtn :Button?=null
 
+    private var bleGatt:BluetoothGatt?=null
+
+
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -168,6 +167,15 @@ class MainActivity : AppCompatActivity() {
         main_rcv!!.layoutManager = viewManager
         main_rcv!!.adapter = recyclerViewAdapter
 
+        recyclerViewAdapter.mListener = object :RecyclerViewAdapter.OnItemClickListener{
+            override fun onClick(view: View, position: Int) {
+                scanDevice(false)
+                val device = devicesArr.get(position)
+                bleGatt = DeviceControlActivity(applicationContext,bleGatt).connectGatt(device)
+            }
+
+        }
+
         scanBtn!!.setOnClickListener {
             if(scanBtn!!.text == "SCAN"){
                 devicesArr.clear()
@@ -197,8 +205,15 @@ class MainActivity : AppCompatActivity() {
         bluetoothAdapter?.bluetoothLeScanner?.stopScan(mLeScanCallback)
     }
 
-
-
+    @SuppressLint("MissingPermission")
+    override fun onStop() {
+        super.onStop()
+        if(bleGatt!=null){
+            bleGatt?.disconnect()
+            bleGatt?.close()
+            bleGatt = null
+        }
+    }
     /*
 
     fun setBLEAdapter(){

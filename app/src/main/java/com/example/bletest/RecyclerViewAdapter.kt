@@ -9,7 +9,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class RecyclerViewAdapter(private val myDataset: ArrayList<BluetoothDevice>): RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder > () {
-
+    var mListener : OnItemClickListener? = null
+    interface OnItemClickListener{
+        fun onClick(view: View, position: Int)
+    }
     inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view){
         private val name :TextView = itemView.findViewById(R.id.item_name)
         private val address:TextView = itemView.findViewById(R.id.item_address)
@@ -28,6 +31,9 @@ class RecyclerViewAdapter(private val myDataset: ArrayList<BluetoothDevice>): Re
     @SuppressLint("MissingPermission")
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.bind(myDataset[position])
+        holder.itemView.setOnClickListener {
+            mListener!!.onClick(it,position)
+        }
     }
     override fun getItemCount() = myDataset.size
 }
